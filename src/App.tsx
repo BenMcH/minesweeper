@@ -21,7 +21,6 @@ const shuffle = <T,>(array: T[]): T[] => {
 }
 
 const countNeighbors = (board: Board, pos: number, directions: number[]): number => {
-  const row = pos / board.numCols;
   const col = pos / board.numRows;
   
   return  directions
@@ -29,7 +28,7 @@ const countNeighbors = (board: Board, pos: number, directions: number[]): number
               const newPos = pos + direction;
               const directionCol = newPos / board.numRows;
 
-              if (Math.abs(directionCol - col) > 1) return;
+              if (Math.abs(directionCol - col) > 1) return null;
               
               return getCell(board, newPos);
             })
