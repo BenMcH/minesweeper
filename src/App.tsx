@@ -2,38 +2,45 @@ import React, { useEffect, useState } from 'react';
 import produce from 'immer';
 import './App.css';
 
-const size    = 75;
+const size = 75;
 
-type Cell = {
+interface Cell {
   bomb: boolean
   shown: boolean
   flagged: boolean
 }
 
-type Board = {
+interface Board {
   cells: Cell[]
   numRows: number
   numCols: number
 };
 
+enum AppState {
+  PLAYING,
+  WIN,
+  LOSE
+}
+
+const directions = [[0, 1], [0, -1], [-1, 1], [-1, 0], [-1, -1], [1, 1], [1, 0], [1, -1]];
+
 const shuffle = <T,>(array: T[]): T[] => {
   return array.sort(() => Math.random() - 0.5);
 }
 
-const countNeighbors = (board: Board, pos: number, directions: number[]): number => {
-  const col = pos / board.numRows;
-  
-  return  directions
-            .map((direction) => {
-              const newPos = pos + direction;
-              const directionCol = newPos / board.numRows;
+const countNeighbors = (board: Board, pos: number): number => {
+  const col = pos % board.numCols;  
+  const row = (pos - col) / board.numCols;
 
-              if (Math.abs(directionCol - col) > 1) return null;
-              
-              return getCell(board, newPos);
-            })
-            .filter((a) => a && a.bomb)
-            .length;
+  return directions.reduce((acc, [rowX, colX]) => {
+    const newRow = row + rowX;
+    const newCol = col + colX;
+    if (newRow < 0 || newRow >= board.numRows || newCol < 0 || newCol >= board.numCols) return acc;
+
+    const cell = board.cells[pos + board.numCols * rowX + colX];
+
+    return acc + (cell.bomb ? 1 : 0);
+  }, 0);
 };
 
 const createRandomBoard = (rows: number, cols: number, numBombs: number): Board => {
@@ -60,21 +67,21 @@ const getCell = (board: Board, pos: number): Cell | null => {
   return board.cells[pos];
 }
 
-const floodFill = (board: Board, pos: number, numCols: number, directions: number[]) => {
+const floodFill = (board: Board, pos: number, numCols: number) => {
   const cell = getCell(board, pos);
-  const neighbors = countNeighbors(board, pos, directions);
+  const neighbors = countNeighbors(board, pos);
   if (!cell || cell.shown || cell.bomb) return;
   cell.shown = true;
 
 
   if (neighbors === 0) {
-    floodFill(board, pos - numCols, numCols, directions)
-    floodFill(board, pos + numCols, numCols, directions)
+    floodFill(board, pos - numCols, numCols)
+    floodFill(board, pos + numCols, numCols)
     if (pos % numCols !== numCols - 1){
-      floodFill(board, pos + 1, numCols, directions)
+      floodFill(board, pos + 1, numCols)
     }
     if (pos % numCols !== 0) {
-      floodFill(board, pos - 1, numCols, directions)
+      floodFill(board, pos - 1, numCols)
     }
   }
 }
@@ -84,18 +91,8 @@ function App() {
   const [numCols, setNumCols] = useState(10);
   const [numBombs, setNumBombs] = useState(10);
   const [board, setBoard] = useState(() => createRandomBoard(numRows, numCols, numBombs));
-  const [lose, setLose] = useState(false);
+  const [appState, setAppState] = useState(AppState.PLAYING);  
 
-  const directions = [
-  numCols,
-  numCols + 1,
-  numCols - 1,
-  -numCols,
-  -numCols + 1,
-  -numCols - 1,
-  1,
-  -1
-]
 
   const showCell = (i: number) => produce<Board>(board, (boardCopy) => {
     if (boardCopy.cells[i].bomb) {
@@ -104,9 +101,9 @@ function App() {
           cell.shown = true;
         }
       });
-      setLose(true);
+      setAppState(AppState.LOSE);
     } else {
-      floodFill(boardCopy, i, numCols, directions);
+      floodFill(boardCopy, i, numCols);
     }
 
     return boardCopy;
@@ -115,20 +112,21 @@ function App() {
   const flag = (event: {preventDefault: () => void}, i: number) => produce<Board>(board, (boardCopy) => {
     event.preventDefault();
     const cell = getCell(boardCopy, i);
-    if (!cell) return;
+    if (!cell || appState !== AppState.PLAYING) return;
     cell.flagged = !cell.flagged;
     return boardCopy;
   });
 
   const onlyBombs = board.cells.every(cell => cell.shown || cell.bomb);
 
-  const [win, setWin] = useState(false);
   useEffect(() => {
-    setWin(onlyBombs)
+    if (onlyBombs && appState === AppState.PLAYING){
+    setAppState(AppState.WIN);
+    }
   }, [onlyBombs]);
 
 
-  const neighbors = board.cells.map((_, i) => countNeighbors(board, i, directions));
+  const neighbors = board.cells.map((_, i) => countNeighbors(board, i));
 
   const buttonMessage = (cell: Cell, i: number) => {
     if (cell.shown) {
@@ -147,20 +145,27 @@ function App() {
   };
 
   const reset = () => {
-    setWin(false);
-    setLose(false);
+    setAppState(AppState.PLAYING);
     setBoard(createRandomBoard(numRows, numCols, numBombs))
+  }
+
+  const playCell = (i: number) => {
+    if (appState !== AppState.PLAYING) {
+      return;
+    }
+
+    setBoard(showCell(i));
   }
 
   return (
     <div className="page">
       <h1>minesweeper</h1>
       <h2>
-        {win ? "You win!" : lose ? "You lose :(" : null}
+        {appState === AppState.WIN ? "You win!" : appState === AppState.LOSE ? "You lose :(" : null}
       </h2>
       <div className="minesweeper-board" style={{gridTemplateColumns: `repeat(${board.numCols}, ${size}px)`}}>
         {board.cells.map((cell, i) => 
-          <button disabled={cell.shown} onClick={() => setBoard(showCell(i))} style={{height: `${size}px`}} onContextMenu={(event) => setBoard(flag(event, i))}>
+          <button disabled={cell.shown} onClick={() => playCell(i)} style={{height: `${size}px`}} onContextMenu={(event) => setBoard(flag(event, i))}>
             {buttonMessage(cell, i)}
           </button>
         )}
