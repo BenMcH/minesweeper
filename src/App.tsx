@@ -123,7 +123,7 @@ function App() {
     if (onlyBombs && appState === AppState.PLAYING){
     setAppState(AppState.WIN);
     }
-  }, [onlyBombs]);
+  }, [onlyBombs, appState]);
 
 
   const neighbors = board.cells.map((_, i) => countNeighbors(board, i));
