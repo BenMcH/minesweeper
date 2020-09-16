@@ -128,7 +128,7 @@ function App() {
 
   const neighbors = board.cells.map((_, i) => countNeighbors(board, i));
 
-  const buttonMessage = (cell: Cell, i: number) => {
+  const buttonMessage = (cell: Cell, i: number): String => {
     if (cell.shown) {
       if (cell.bomb) {
         return 'BOOM';
@@ -144,7 +144,7 @@ function App() {
     }
   };
 
-  const reset = () => {
+  const reset = (): void => {
     setAppState(AppState.PLAYING);
     setBoard(createRandomBoard(numRows, numCols, numBombs))
   }
