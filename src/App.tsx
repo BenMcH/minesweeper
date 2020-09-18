@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import produce from 'immer';
 import './App.css';
 
-const size = 75;
+const getSize = (numCols: number, numRows: number): string => `clamp(20px, calc(95vw / ${numCols}), calc(80vh / ${numRows}))`;
 
 interface Cell {
   bomb: boolean
@@ -157,15 +157,17 @@ function App() {
     setBoard(showCell(i));
   }
 
+  const size = getSize(board.numCols, board.numRows);
+
   return (
     <div className="page">
       <h1>minesweeper</h1>
       <h2>
         {appState === AppState.WIN ? "You win!" : appState === AppState.LOSE ? "You lose :(" : null}
       </h2>
-      <div className="minesweeper-board" style={{gridTemplateColumns: `repeat(${board.numCols}, ${size}px)`}}>
+      <div className="minesweeper-board" style={{gridTemplateColumns: `repeat(${board.numCols}, ${size})`}}>
         {board.cells.map((cell, i) => 
-          <button disabled={cell.shown} onClick={() => playCell(i)} style={{height: `${size}px`}} onContextMenu={(event) => setBoard(flag(event, i))}>
+          <button disabled={cell.shown} onClick={() => playCell(i)} style={{height: `${size}`}} onContextMenu={(event) => setBoard(flag(event, i))}>
             {buttonMessage(cell, i)}
           </button>
         )}
