@@ -4,12 +4,12 @@
 }
 
 .minesweeper-board button {
-    background-color: grey;
+    background: grey;
     border: 1px #aeaeae solid;
 }
 
 .minesweeper-board button:disabled {
-    background-color: #1f1f1f;
+    background: #1f1f1f;
     border: 1px #aeaeae solid;
 }
 
@@ -17,7 +17,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    text-align: center;
     gap: 1rem;
 }
 .page > label {
