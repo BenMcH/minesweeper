@@ -169,21 +169,18 @@ function App() {
       <div className="minesweeper-board" style={{ gridTemplateColumns: `repeat(${board.numCols}, ${size})` }}>
         {board.cells.map((cell, i) =>
           <>
-
             <button disabled={cell.shown} onClick={() => playCell(i)} style={{ height: `${size}` }} onContextMenu={(event) => setBoard(flag(event, i))}>
               {buttonMessage(cell, i)}
             </button>
           </>
         )}
       </div>
-
       <small>Press reset to apply changes</small>
       <label>Rows <input id="rows" type='number' onChange={(event) => setNumRows(Number(event.target.value))} value={numRows} /></label>
       <label>Cols <input id="cols" type='number' onChange={(event) => setNumCols(Number(event.target.value))} value={numCols} /></label>
       <label>Bombs <input id="bombs" type='number' onChange={(event) => setNumBombs(Number(event.target.value))} value={numBombs} /></label>
       <button className="reset" onClick={reset}>Reset</button>
     </div>
-
   );
 }
 
