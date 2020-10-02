@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import produce from 'immer';
 import './App.css';
+import {motion} from "framer-motion";
+
 
 const getSize = (numCols: number, numRows: number): string => `clamp(20px, calc(95vw / ${numCols}), calc(80vh / ${numRows}))`;
 
@@ -161,17 +163,24 @@ function App() {
 
   return (
     <div className="page">
-      <h1>minesweeper</h1>
-      <h2>
+      <motion.h1
+        initial={{scale: 0.8, rotate: 20}}
+        animate={{scale: 1.2, rotate: 0}}
+        transition = {{type: 'spring', stiffness: 1000}}>minesweeper</motion.h1>  
+      <motion.div layout>
+      <motion.h2 animate = {{y: "-50%"}}>
         {appState === AppState.WIN ? "You win!" : appState === AppState.LOSE ? "You lose :(" : null}
-      </h2>
-      <div className="minesweeper-board" style={{gridTemplateColumns: `repeat(${board.numCols}, ${size})`}}>
+      </motion.h2>
+      <motion.div layout className="minesweeper-board" style={{gridTemplateColumns: `repeat(${board.numCols}, ${size})`}}>
         {board.cells.map((cell, i) => 
-          <button disabled={cell.shown} onClick={() => playCell(i)} style={{height: `${size}`}} onContextMenu={(event) => setBoard(flag(event, i))}>
+          <motion.button 
+          whileHover = {{scale: 1.2, boxShadow: "5px 5px 0px rgba(0, 0, 0, 0.3  )"}} 
+          disabled={cell.shown} onClick={() => playCell(i)} style={{height: `${size}`}} onContextMenu={(event) => setBoard(flag(event, i))}>
             {buttonMessage(cell, i)}
-          </button>
+          </motion.button>
         )}
-      </div>
+      </motion.div>
+      </motion.div>
       
       <small>Press reset to apply changes</small>
       <label>Rows <input id="rows" type='number' onChange={(event) => setNumRows(Number(event.target.value))} value={numRows} /></label>
