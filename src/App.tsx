@@ -183,6 +183,7 @@ function App() {
       <label>Bombs <input id="bombs" type='number' onChange={(event) => setNumBombs(Number(event.target.value))} value={numBombs} /></label>
       <button className="reset" onClick={reset}>Reset</button>
     </div>
+
   );
 }
 
