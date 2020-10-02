@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import produce from 'immer';
 import './App.css';
+<<<<<<< HEAD
 import {motion} from "framer-motion";
 
+=======
+import { ReactComponent as FlagIcon } from './assets/icons/flag.svg';
+import { ReactComponent as MineIcon } from './assets/icons/mine.svg';
+>>>>>>> ccb81917368b489838c82c26cf023544db0507b2
 
 const getSize = (numCols: number, numRows: number): string => `clamp(20px, calc(95vw / ${numCols}), calc(80vh / ${numRows}))`;
 
@@ -31,7 +36,7 @@ const shuffle = <T,>(array: T[]): T[] => {
 }
 
 const countNeighbors = (board: Board, pos: number): number => {
-  const col = pos % board.numCols;  
+  const col = pos % board.numCols;
   const row = (pos - col) / board.numCols;
 
   return directions.reduce((acc, [rowX, colX]) => {
@@ -46,12 +51,11 @@ const countNeighbors = (board: Board, pos: number): number => {
 };
 
 const createRandomBoard = (rows: number, cols: number, numBombs: number): Board => {
-  let a = Array.from({length: rows * cols}).map((_, index) => ({
+  let a = Array.from({ length: rows * cols }).map((_, index) => ({
     bomb: index < numBombs,
     shown: false,
     flagged: false
   }));
-
   for (let x = 0; x < rows * cols; x++) {
     a = shuffle(a);
   }
@@ -79,7 +83,7 @@ const floodFill = (board: Board, pos: number, numCols: number) => {
   if (neighbors === 0) {
     floodFill(board, pos - numCols, numCols)
     floodFill(board, pos + numCols, numCols)
-    if (pos % numCols !== numCols - 1){
+    if (pos % numCols !== numCols - 1) {
       floodFill(board, pos + 1, numCols)
     }
     if (pos % numCols !== 0) {
@@ -93,7 +97,7 @@ function App() {
   const [numCols, setNumCols] = useState(10);
   const [numBombs, setNumBombs] = useState(10);
   const [board, setBoard] = useState(() => createRandomBoard(numRows, numCols, numBombs));
-  const [appState, setAppState] = useState(AppState.PLAYING);  
+  const [appState, setAppState] = useState(AppState.PLAYING);
 
 
   const showCell = (i: number) => produce<Board>(board, (boardCopy) => {
@@ -111,7 +115,7 @@ function App() {
     return boardCopy;
   });
 
-  const flag = (event: {preventDefault: () => void}, i: number) => produce<Board>(board, (boardCopy) => {
+  const flag = (event: { preventDefault: () => void }, i: number) => produce<Board>(board, (boardCopy) => {
     event.preventDefault();
     const cell = getCell(boardCopy, i);
     if (!cell || appState !== AppState.PLAYING) return;
@@ -122,24 +126,24 @@ function App() {
   const onlyBombs = board.cells.every(cell => cell.shown || cell.bomb);
 
   useEffect(() => {
-    if (onlyBombs && appState === AppState.PLAYING){
-    setAppState(AppState.WIN);
+    if (onlyBombs && appState === AppState.PLAYING) {
+      setAppState(AppState.WIN);
     }
   }, [onlyBombs, appState]);
 
 
   const neighbors = board.cells.map((_, i) => countNeighbors(board, i));
 
-  const buttonMessage = (cell: Cell, i: number): String => {
+  const buttonMessage = (cell: Cell, i: number) => {
     if (cell.shown) {
       if (cell.bomb) {
-        return 'BOOM';
+        return <MineIcon fill="black" width={30} />;
       }
 
       return neighbors[i] > 0 ? `${neighbors[i]}` : '';
     } else {
       if (cell.flagged) {
-        return 'Flag'
+        return (<FlagIcon width={30} />);
       }
 
       return '';
@@ -170,6 +174,7 @@ function App() {
       <motion.div layout>
       <motion.h2 animate = {{y: "-50%"}}>
         {appState === AppState.WIN ? "You win!" : appState === AppState.LOSE ? "You lose :(" : null}
+<<<<<<< HEAD
       </motion.h2>
       <motion.div layout className="minesweeper-board" style={{gridTemplateColumns: `repeat(${board.numCols}, ${size})`}}>
         {board.cells.map((cell, i) => 
@@ -182,6 +187,18 @@ function App() {
       </motion.div>
       </motion.div>
       
+=======
+      </h2>
+      <div className="minesweeper-board" style={{ gridTemplateColumns: `repeat(${board.numCols}, ${size})` }}>
+        {board.cells.map((cell, i) =>
+          <>
+            <button disabled={cell.shown} onClick={() => playCell(i)} style={{ height: `${size}` }} onContextMenu={(event) => setBoard(flag(event, i))}>
+              {buttonMessage(cell, i)}
+            </button>
+          </>
+        )}
+      </div>
+>>>>>>> ccb81917368b489838c82c26cf023544db0507b2
       <small>Press reset to apply changes</small>
       <label>Rows <input id="rows" type='number' onChange={(event) => setNumRows(Number(event.target.value))} value={numRows} /></label>
       <label>Cols <input id="cols" type='number' onChange={(event) => setNumCols(Number(event.target.value))} value={numCols} /></label>
