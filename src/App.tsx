@@ -1,4 +1,3 @@
-//@ts-ignore 
 import React, { useEffect, useState } from 'react';
 import produce from 'immer';
 import { motion } from 'framer-motion';
@@ -119,7 +118,7 @@ function App() {
     cell.flagged = !cell.flagged;
     return boardCopy;
   });
-  //@ts-ignore
+
   const onlyBombs = board.cells.every(cell => cell.shown || cell.bomb);
 
   useEffect(() => {
@@ -128,7 +127,6 @@ function App() {
     }
   }, [onlyBombs, appState]);
 
-  //@ts-ignore
   const neighbors = board.cells.map((_, i) => countNeighbors(board, i));
 
   const buttonMessage = (cell: Cell, i: number) => {
@@ -162,14 +160,13 @@ function App() {
   }
 
   const size = getSize(board.numCols, board.numRows);
-  const boomshake = {
-    shake: {x: 10, transition: {type: 'spring', stiffness: 2000}},
+  const boomShake = {
+    shake: {x: [0, 20, -20, 10, -10, 0], y: [0, 20, -20, -10, 10, 0], transition: {type: 'spring', stiffness: 2000}},
     back: {x: 0, transition: {}}
   }
 
 
   return (
-    //@ts-ignore
     <div className="page">
       <motion.h1
         initial={{ scale: 0.8, rotate: 20 }}
@@ -181,7 +178,7 @@ function App() {
         </motion.h2>
         <motion.div className="Shake" 
           animate={(stateCheck) ? "shake":"back"}
-          variants= {boomshake}>
+          variants= {boomShake}>
         <motion.div layout className="minesweeper-board" style={{ gridTemplateColumns: `repeat(${board.numCols}, ${size})` }}>
           {board.cells.map((cell, i) =>
               <>
