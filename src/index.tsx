@@ -10,8 +10,9 @@ import {motion} from 'framer-motion';
 ReactDOM.render(
   <React.StrictMode>
     <motion.div
-      initial={{ scale: 0.8, rotate: 20 }}
-      animate={{ scale: 1.2, rotate: 0 }}>
+      initial={{ opacity: 0.5 , y: "10%", rotate: 6}}
+      animate={{ opacity: 1, y: "0", rotate: 0 }}
+      transition = {{duration: 0.5}}>
     <App />
     </motion.div>
   </React.StrictMode>,

@@ -167,7 +167,7 @@ function App() {
       <motion.h1
         initial={{ scale: 0.8, rotate: 20 }}
         animate={{ scale: 1.2, rotate: 0 }}
-        transition={{ type: 'spring', stiffness: 1000 }}>minesweeper</motion.h1>
+        transition={{ type: 'spring', stiffness: 50 }}>minesweeper</motion.h1>
       <motion.div layout>
         <motion.h2 animate={{ y: "-50%" }}>
           {appState === AppState.WIN ? "You win!" : appState === AppState.LOSE ? "You lose :(" : null}
@@ -175,7 +175,7 @@ function App() {
         <motion.div layout className="minesweeper-board" style={{ gridTemplateColumns: `repeat(${board.numCols}, ${size})` }}>
           {board.cells.map((cell, i) =>
               <>
-                <motion.button
+                <motion.button 
                   whileHover={{ scale: 1.2, boxShadow: "5px 5px 0px rgba(0, 0, 0, 0.3  )" }}
                   disabled={cell.shown} onClick={() => playCell(i)} style={{ height: `${size}` }} onContextMenu={(event) => setBoard(flag(event, i))}>
                   {buttonMessage(cell, i)}
