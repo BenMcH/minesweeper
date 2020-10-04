@@ -7,6 +7,7 @@ import { ReactComponent as FlagIcon } from './assets/icons/flag.svg';
 import { ReactComponent as MineIcon } from './assets/icons/mine.svg';
 
 const getSize = (numCols: number, numRows: number): string => `clamp(20px, calc(95vw / ${numCols}), calc(80vh / ${numRows}))`;
+let stateCheck = false;
 
 interface Cell {
   bomb: boolean
@@ -95,7 +96,6 @@ function App() {
   const [board, setBoard] = useState(() => createRandomBoard(numRows, numCols, numBombs));
   const [appState, setAppState] = useState(AppState.PLAYING);
 
-
   const showCell = (i: number) => produce<Board>(board, (boardCopy) => {
     if (boardCopy.cells[i].bomb) {
       boardCopy.cells.forEach((cell) => {
@@ -104,6 +104,7 @@ function App() {
         }
       });
       setAppState(AppState.LOSE);
+      stateCheck = true;
     } else {
       floodFill(boardCopy, i, numCols);
     }
@@ -148,6 +149,7 @@ function App() {
 
   const reset = (): void => {
     setAppState(AppState.PLAYING);
+    stateCheck = false;
     setBoard(createRandomBoard(numRows, numCols, numBombs))
   }
 
@@ -160,6 +162,10 @@ function App() {
   }
 
   const size = getSize(board.numCols, board.numRows);
+  const boomshake = {
+    shake: {x: 10, transition: {type: 'spring', stiffness: 2000}},
+    back: {x: 0, transition: {}}
+  }
 
 
   return (
@@ -174,8 +180,8 @@ function App() {
           {appState === AppState.WIN ? "You win!" : appState === AppState.LOSE ? "You lose :(" : null}
         </motion.h2>
         <motion.div className="Shake" 
-          animate={(appState === AppState.LOSE) ? {x: 10}:{}}
-          transition={{type:'spring', stiffness: 1250}}>
+          animate={(stateCheck) ? "shake":"back"}
+          variants= {boomshake}>
         <motion.div layout className="minesweeper-board" style={{ gridTemplateColumns: `repeat(${board.numCols}, ${size})` }}>
           {board.cells.map((cell, i) =>
               <>
