@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import produce from 'immer';
+import { motion } from 'framer-motion';
 import './App.css';
 import { ReactComponent as FlagIcon } from './assets/icons/flag.svg';
 import { ReactComponent as MineIcon } from './assets/icons/mine.svg';
 
 const getSize = (numCols: number, numRows: number): string => `clamp(20px, calc(95vw / ${numCols}), calc(80vh / ${numRows}))`;
+let stateCheck = false;
 
 interface Cell {
   bomb: boolean
@@ -86,14 +88,12 @@ const floodFill = (board: Board, pos: number, numCols: number) => {
     }
   }
 }
-
 function App() {
   const [numRows, setNumRows] = useState(10);
   const [numCols, setNumCols] = useState(10);
   const [numBombs, setNumBombs] = useState(10);
   const [board, setBoard] = useState(() => createRandomBoard(numRows, numCols, numBombs));
   const [appState, setAppState] = useState(AppState.PLAYING);
-
 
   const showCell = (i: number) => produce<Board>(board, (boardCopy) => {
     if (boardCopy.cells[i].bomb) {
@@ -103,6 +103,7 @@ function App() {
         }
       });
       setAppState(AppState.LOSE);
+      stateCheck = true;
     } else {
       floodFill(boardCopy, i, numCols);
     }
@@ -126,7 +127,6 @@ function App() {
     }
   }, [onlyBombs, appState]);
 
-
   const neighbors = board.cells.map((_, i) => countNeighbors(board, i));
 
   const buttonMessage = (cell: Cell, i: number) => {
@@ -147,6 +147,7 @@ function App() {
 
   const reset = (): void => {
     setAppState(AppState.PLAYING);
+    stateCheck = false;
     setBoard(createRandomBoard(numRows, numCols, numBombs))
   }
 
@@ -159,22 +160,38 @@ function App() {
   }
 
   const size = getSize(board.numCols, board.numRows);
+  const boomShake = {
+    shake: {x: [0, 20, -20, 10, -10, 0], y: [0, 20, -20, -10, 10, 0], transition: {type: 'spring', stiffness: 2000}},
+    back: {x: 0, transition: {}}
+  }
+
 
   return (
     <div className="page">
-      <h1>minesweeper</h1>
-      <h2>
-        {appState === AppState.WIN ? "You win!" : appState === AppState.LOSE ? "You lose :(" : null}
-      </h2>
-      <div className="minesweeper-board" style={{ gridTemplateColumns: `repeat(${board.numCols}, ${size})` }}>
-        {board.cells.map((cell, i) =>
-          <>
-            <button disabled={cell.shown} onClick={() => playCell(i)} style={{ height: `${size}` }} onContextMenu={(event) => setBoard(flag(event, i))}>
-              {buttonMessage(cell, i)}
-            </button>
-          </>
-        )}
-      </div>
+      <motion.h1
+        initial={{ scale: 0.8, rotate: 20 }}
+        animate={{ scale: 1.2, rotate: 0 }}
+        transition={{ type: 'spring', stiffness: 50 }}>minesweeper</motion.h1>
+      <motion.div layout>
+        <motion.h2 animate={{ y: "-50%" }}>
+          {appState === AppState.WIN ? "You win!" : appState === AppState.LOSE ? "You lose :(" : null}
+        </motion.h2>
+        <motion.div className="Shake" 
+          animate={(stateCheck) ? "shake":"back"}
+          variants= {boomShake}>
+        <motion.div layout className="minesweeper-board" style={{ gridTemplateColumns: `repeat(${board.numCols}, ${size})` }}>
+          {board.cells.map((cell, i) =>
+              <>
+                <motion.button 
+                  whileHover={(((!cell.shown) || (cell.flagged)) && (appState === AppState.PLAYING)) ? { scale: 1.2, boxShadow: "5px 5px 0px rgba(0, 0, 0, 0.3  )" }:{}}
+                  disabled={cell.shown} onClick={() => playCell(i)} style={{ height: `${size}` }} onContextMenu={(event) => setBoard(flag(event, i))}>
+                  {buttonMessage(cell, i)}
+                </motion.button>
+              </>
+            )}
+          </motion.div>  
+        </motion.div>
+      </motion.div>
       <small>Press reset to apply changes</small>
       <label>Rows <input id="rows" type='number' onChange={(event) => setNumRows(Number(event.target.value))} value={numRows} /></label>
       <label>Cols <input id="cols" type='number' onChange={(event) => setNumCols(Number(event.target.value))} value={numCols} /></label>
