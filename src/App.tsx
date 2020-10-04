@@ -173,6 +173,9 @@ function App() {
         <motion.h2 animate={{ y: "-50%" }}>
           {appState === AppState.WIN ? "You win!" : appState === AppState.LOSE ? "You lose :(" : null}
         </motion.h2>
+        <motion.div className="Shake" 
+          animate={(appState === AppState.LOSE) ? {x: 10, rotate: 10}:{}}
+          transition={{type:'spring', stiffness: 1250}}>
         <motion.div layout className="minesweeper-board" style={{ gridTemplateColumns: `repeat(${board.numCols}, ${size})` }}>
           {board.cells.map((cell, i) =>
               <>
@@ -183,6 +186,7 @@ function App() {
                 </motion.button>
               </>
             )}
+          </motion.div>  
         </motion.div>
       </motion.div>
       <small>Press reset to apply changes</small>
