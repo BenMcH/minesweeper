@@ -6,7 +6,6 @@ import { ReactComponent as FlagIcon } from './assets/icons/flag.svg';
 import { ReactComponent as MineIcon } from './assets/icons/mine.svg';
 
 const getSize = (numCols: number, numRows: number): string => `clamp(20px, calc(95vw / ${numCols}), calc(80vh / ${numRows}))`;
-let stateCheck = false;
 
 interface Cell {
   bomb: boolean
@@ -103,7 +102,6 @@ function App() {
         }
       });
       setAppState(AppState.LOSE);
-      stateCheck = true;
     } else {
       floodFill(boardCopy, i, numCols);
     }
@@ -147,7 +145,6 @@ function App() {
 
   const reset = (): void => {
     setAppState(AppState.PLAYING);
-    stateCheck = false;
     setBoard(createRandomBoard(numRows, numCols, numBombs))
   }
 
@@ -177,7 +174,7 @@ function App() {
           {appState === AppState.WIN ? "You win!" : appState === AppState.LOSE ? "You lose :(" : null}
         </motion.h2>
         <motion.div className="Shake" 
-          animate={(stateCheck) ? "shake":"back"}
+          animate={appState === AppState.LOSE ? "shake":"back"}
           variants= {boomShake}>
         <motion.div layout className="minesweeper-board" style={{ gridTemplateColumns: `repeat(${board.numCols}, ${size})` }}>
           {board.cells.map((cell, i) =>
