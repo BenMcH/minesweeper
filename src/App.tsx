@@ -161,6 +161,7 @@ function App() {
 
   const size = getSize(board.numCols, board.numRows);
 
+
   return (
     //@ts-ignore
     <div className="page">
@@ -176,7 +177,7 @@ function App() {
           {board.cells.map((cell, i) =>
               <>
                 <motion.button 
-                  whileHover={{ scale: 1.2, boxShadow: "5px 5px 0px rgba(0, 0, 0, 0.3  )" }}
+                  whileHover={(!cell.shown || !cell.flagged) ? { scale: 1.2, boxShadow: "5px 5px 0px rgba(0, 0, 0, 0.3  )" }:{}}
                   disabled={cell.shown} onClick={() => playCell(i)} style={{ height: `${size}` }} onContextMenu={(event) => setBoard(flag(event, i))}>
                   {buttonMessage(cell, i)}
                 </motion.button>
