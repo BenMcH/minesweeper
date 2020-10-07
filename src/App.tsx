@@ -166,8 +166,8 @@ function App() {
   return (
     <div className="page">
       <motion.h1
-        initial={{ scale: 0.8, rotate: 20 }}
-        animate={{ scale: 1.2, rotate: 0 }}
+        initial={{ scale: 0.8 }}
+        animate={{ scale: 1.2 }}
         transition={{ type: 'spring', stiffness: 50 }}>minesweeper</motion.h1>
       <motion.div layout>
         <motion.h2 animate={{ y: "-50%" }}>
