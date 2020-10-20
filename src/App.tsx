@@ -140,7 +140,7 @@ function App() {
       }
 
       const colorLevel = (255 / 3) * iterators;
-      const color = `rgb(${(+(countIterator == 1)) * colorLevel}, ${(+(countIterator == 2)) * colorLevel}, ${(+(countIterator == 3)) * colorLevel})`;
+      const color = `rgb(${(+(countIterator === 1)) * colorLevel}, ${(+(countIterator === 2)) * colorLevel}, ${(+(countIterator === 3)) * colorLevel})`;
 
       return (<span style={{ "color": color }}>{count}</ span>);
     } else {
