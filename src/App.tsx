@@ -125,15 +125,35 @@ function App() {
     }
   }, [onlyBombs, appState]);
 
-  const neighbors = board.cells.map((_, i) => countNeighbors(board, i));
+  const neighbors = board.cells.map((_, i) => {
+
+    const count = countNeighbors(board, i);
+
+    if (count > 0) {
+
+      let countIterator = count;
+      let iterators = 3;
+
+      while (countIterator > 3) {
+        countIterator = countIterator - 3;
+        iterators--;
+      }
+
+      const colorLevel = (255 / 3) * iterators;
+      const color = `rgb(${(+(countIterator === 1)) * colorLevel}, ${(+(countIterator === 2)) * colorLevel}, ${(+(countIterator === 3)) * colorLevel})`;
+
+      return (<span style={{ "color": color }}>{count}</ span>);
+    } else {
+      return (<span></span>)
+    }
+  });
 
   const buttonMessage = (cell: Cell, i: number) => {
     if (cell.shown) {
       if (cell.bomb) {
         return <MineIcon fill="black" width={30} />;
       }
-
-      return neighbors[i] > 0 ? `${neighbors[i]}` : '';
+      return neighbors[i];
     } else {
       if (cell.flagged) {
         return (<FlagIcon width={30} />);
@@ -158,8 +178,8 @@ function App() {
 
   const size = getSize(board.numCols, board.numRows);
   const boomShake = {
-    shake: {x: [0, 20, -20, 10, -10, 0], y: [0, 20, -20, -10, 10, 0], transition: {type: 'spring', stiffness: 2000}},
-    back: {x: 0, transition: {}}
+    shake: { x: [0, 20, -20, 10, -10, 0], y: [0, 20, -20, -10, 10, 0], transition: { type: 'spring', stiffness: 2000 } },
+    back: { x: 0, transition: {} }
   }
 
 
@@ -173,20 +193,20 @@ function App() {
         <motion.h2 animate={{ y: "-50%" }}>
           {appState === AppState.WIN ? "You win!" : appState === AppState.LOSE ? "You lose :(" : null}
         </motion.h2>
-        <motion.div className="Shake" 
-          animate={appState === AppState.LOSE ? "shake":"back"}
-          variants= {boomShake}>
-        <motion.div layout className="minesweeper-board" style={{ gridTemplateColumns: `repeat(${board.numCols}, ${size})` }}>
-          {board.cells.map((cell, i) =>
+        <motion.div className="Shake"
+          animate={appState === AppState.LOSE ? "shake" : "back"}
+          variants={boomShake}>
+          <motion.div layout className="minesweeper-board" style={{ gridTemplateColumns: `repeat(${board.numCols}, ${size})` }}>
+            {board.cells.map((cell, i) =>
               <>
-                <motion.button 
-                  whileHover={(((!cell.shown) || (cell.flagged)) && (appState === AppState.PLAYING)) ? { scale: 1.2, boxShadow: "5px 5px 0px rgba(0, 0, 0, 0.3  )" }:{}}
+                <motion.button
+                  whileHover={(((!cell.shown) || (cell.flagged)) && (appState === AppState.PLAYING)) ? { scale: 1.2, boxShadow: "5px 5px 0px rgba(0, 0, 0, 0.3  )" } : {}}
                   disabled={cell.shown} onClick={() => playCell(i)} style={{ height: `${size}` }} onContextMenu={(event) => setBoard(flag(event, i))}>
                   {buttonMessage(cell, i)}
                 </motion.button>
               </>
             )}
-          </motion.div>  
+          </motion.div>
         </motion.div>
       </motion.div>
       <small>Press reset to apply changes</small>
